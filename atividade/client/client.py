@@ -7,15 +7,30 @@ print ('Cliente conectado.\n')
 arr = '1'
 
 def menu():
-    selecao = 'n' 
-    num1 ='n'
-    num2 ='n'
+    selecao = 'n'
+    num1 = 'n'
+    num2 = 'n'
     text = 'você digitou um caractere que não é um número inteiro'
-    while not (selecao.isnumeric()):
-        print('DIGITE APENAS O NUMERO: \n 1 - SOMA \n 2 - SUBTRACAO \n 3 - MULTIPLICACAO \n 4 - DIVISAO')
+    while not (selecao.isnumeric() and int(selecao) < 6):
+        print('''
+            #######################
+            DIGITE APENAS O NUMERO: 
+            1 - SOMA 
+            2 - SUBTRACAO 
+            3 - MULTIPLICACAO 
+            4 - DIVISAO
+            5 - FINALIZAR 
+            #######################''')
         selecao = str(input('DIGITE O NUMERO DA OPERACAO QUE DESEJA FAZER: '))
+        if (selecao > '5'):
+            print(
+                """
+                ####################### 
+                    OPÇÂO INVALIDA
+                #######################
+                """)
         if (selecao == '5'):
-            return 'Finalizando'
+            return 5
         if not (selecao.isnumeric()):
             print (text)
     while not(num1.isnumeric()):
@@ -33,9 +48,10 @@ def menu():
 
 try:
     lista = menu()
-    client.send(lista.encode())
-    data = client.recv(1024).decode()
-    print(f"Resultado: " + data)
+    if not (lista == 5): 
+        client.send(lista.encode())
+        data = client.recv(1024).decode()
+        print(f"Resultado: " + data)
 except socket.error as e: 
     print ("Socket error: %s" %str(e)) 
 except Exception as e: 
