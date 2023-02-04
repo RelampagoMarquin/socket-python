@@ -2,8 +2,8 @@ import threading, time, random
 
 mutex = threading.Lock()
 Thread = threading.Thread
-saldo = 0
-fila = []
+saldo = 1000
+
 class custonThread(Thread):
     #inicia a thread adicionando a variavel de retorno
     def __init__(self, group=None, target=None, name=None,
@@ -50,37 +50,95 @@ class Processo():
     def id(self):
         return self._id
 
-def executeFila():
-    global fila
-    while (len(fila) > 0):
-        execute = fila[0]
+class Node:
+    # Cria o node
+    def __init__(self, data):
+        self.data = data  # salva o dado
+        self.anterior = None
+        self.proximo = None  # inicializa o proximo como null
+  
+# Linked List class
+class LinkedList:
+    
+    # Cria a Linked List
+    def __init__(self): 
+        self.head = None
+        self.end = None
+        self.length = 0
+
+    def size(self):
+        return self.length
+
+    def isEmpty(self):
+        return self.length == 0
+
+    def enQueue(self, new_data):
+  
+        new_node = Node(new_data)
+  
+        if self.head is None:
+            self.head = new_node
+            self.head = new_node
+            return new_node.data
+
+        else:
+            current = self.head
+            while (current.proximo):
+                current = current.proximo
+  
+            current.proximo =  new_node
+            new_node = current
+            self.end = new_node
+
+        self.length += 1
+        return new_node.data
+    
+    def deQueue(self):
+        start = self.head
+        if(start):
+            if(start.anterior):
+                start.anterior = None
+            else:
+                self.end = None
+            self.head = self.head.proximo
+        else:
+           raise Exception('Fila vazia')
+        self.length -= 1
+        return start.data
+
+
+    # Enquanto houver elementos ele faz o print
+    def printList(self):
+        temp = self.head
+        print('A lista criada é: ')
+        while (temp):
+            print (temp.data)
+            temp = temp.proximo
+
+def executeFila(fila):
+    while (fila.size() > 0):
+        execute = fila.head.data
         print(f'''
         ######################################
         INICIANDO PROCESSO de ID: {execute.id}
         ######################################
         ''')
-        # Da maneira que a fila esta não vai funcionar o status, implementar fila na mão pode resolver
-        """ while(execute.status == 'WAIT'):
-            print('aguarde o outro processo encerrar')
-            time.sleep(1) """
-        
         execute.status = "EXECUTE"
         print('')
         execute.Thread.start()
-        execute.status = 'DONE'
         print(f'''
         ######################################
         PROCESSO DE ID {execute.id} FINALIZADO
         ''' + execute.resultado)
-        fila.pop(0)
+        execute.status = 'DONE'
+        fila.deQueue()
         mutex.release()
-    if(len(fila) == 0):
-        return 'Aguardando Processo'
+    if(fila.isEmpty):
+        print('Aguardando Processo')
 
-def addFila(processo):
-    global fila
-    fila.append(processo)
-    return (f'Seu processo entrou na fila na posição: {len(fila)}')
+def addFila(fila, processo):
+    fila.enQueue(processo)
+    return (f'Seu processo entrou na fila na posição: {fila.size()+1}')
 
 def depositar (deposito):
     global saldo, mutex
@@ -95,7 +153,6 @@ def depositar (deposito):
         #################################
     ''')
     
-
 def sacar (sacado):
     global saldo, mutex
     mutex.acquire()
@@ -109,20 +166,24 @@ def sacar (sacado):
         s#################################
     ''')
 
+
+#Teste
+
 print(f'Saldo atual: {saldo}')
 
-p = Processo(custonThread(target=depositar, args=(10000,)))
-fila.append(p)
-for i in range(1, 10):
+fila = LinkedList()
+
+for i in range(0, 10):
+    executeFila(fila)
     action = random.randint(0, 1)
     valor = random.randint(10, 100)
     if(action == 1):
         p = Processo(custonThread(target=sacar, args=(valor,)))
-        addFila(p)
+        print(addFila(fila, p))
     elif(action == 0):
         p = Processo(custonThread(target=depositar, args=(valor,)))
-        addFila(p)
+        print(addFila(fila, p))
     
-    executeFila()
+    
 
 
