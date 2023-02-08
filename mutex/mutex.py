@@ -110,15 +110,15 @@ class LinkedList:
             raise Exception('Index out of bound')
         current=self.head
         count = 0
-        if(index == self.size()):
+        if(index == self.size() and self.size == 1):
             return current.data.id
         else:
-            while(count <= index):
+            while(count < index-1):
                 count+=1
                 current = current.proximo
         
         return current.data.id
-
+        
     # Enquanto houver elementos ele faz o print
     def printList(self):
         temp = self.head
@@ -150,7 +150,9 @@ def addFila(fila, processo):
     text = f'''
     Seu processo entrou na fila na posição: {fila.size()+1}'''
     if(fila.size() >= 1):
-        text += f'\n Aguardando processo de id {fila.elementAt(fila.size())} finalizar'''
+        text += f'''
+    Aguardando processo de id {fila.elementAt(fila.size())} finalizar
+    Id do proximo processo a ser execução {fila.head.data.id}'''
     
     processo = fila.enQueue(processo)
     return text
